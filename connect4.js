@@ -5,11 +5,18 @@
  * board fills (tie)
  */
 
+class Player {
+	constructor(color) {
+		this.color = color;
+	}
+}
+
 class Game {
-	constructor(HEIGHT, WIDTH) {
+	constructor(p1, p2, HEIGHT, WIDTH) {
+		this.players = [p1, p2];
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
-		this.currPlayer = 1; // active player: 1 or 2
+		this.currPlayer = p1; // active player: 1 or 2
 		this.board = []; // array of rows, each row is array of cells  (board[y][x])
 		this.findSpotForCol = this.findSpotForCol.bind(this);
 		this.placeInTable = this.placeInTable.bind(this);
@@ -81,7 +88,7 @@ class Game {
 		const { currPlayer } = this;
 		const piece = document.createElement("div");
 		piece.classList.add("piece");
-		piece.classList.add(`p${currPlayer}`);
+		piece.style.backgroundColor = currPlayer.color;
 		piece.style.top = -50 * (y + 2);
 
 		const spot = document.getElementById(`${y}-${x}`);
@@ -102,7 +109,7 @@ class Game {
 	handleClick(evt) {
 		const {
 			board,
-
+			players,
 			placeInTable,
 			checkForWin,
 			findSpotForCol,
@@ -124,7 +131,7 @@ class Game {
 
 		// check for win
 		if (checkForWin()) {
-			return endGame(`Player ${currPlayer} won!`);
+			return endGame(`The ${currPlayer.color} player won!`);
 		}
 
 		// check for tie
@@ -133,7 +140,7 @@ class Game {
 		}
 
 		// switch players
-		this.currPlayer = currPlayer === 1 ? 2 : 1;
+		this.currPlayer = currPlayer === players[0] ? players[1] : players[0];
 	}
 
 	/** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -194,6 +201,12 @@ class Game {
 	}
 }
 
-document.getElementById("startButton").addEventListener("click", () => {
-	new Game(6, 7);
+document.getElementById("startButton").addEventListener("click", (event) => {
+	event.preventDefault();
+	event.stopPropagation();
+	const p1Color = document.getElementById("p1Color").value;
+	const p2Color = document.getElementById("p2Color").value;
+	const p1 = new Player(p1Color);
+	const p2 = new Player(p2Color);
+	new Game(p1, p2, 6, 7);
 });
